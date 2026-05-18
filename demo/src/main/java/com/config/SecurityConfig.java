@@ -30,22 +30,18 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .cors(Customizer.withDefaults()) // 🌟 ATIVA A NOSSA NOVA REGRA DE CORS AQUI!
+            .cors(Customizer.withDefaults()) 
             .csrf(csrf -> csrf.disable())
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                // 🔑 Permite que o Java mostre os erros reais (como 404, 500) em vez de bloquear com 403
                 .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll() 
+                .requestMatchers(HttpMethod.GET, "/**").permitAll() 
                 
-                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // Libera as perguntas do navegador
-                
-                // PORTAS ABERTAS
                 .requestMatchers(HttpMethod.POST, "/api/usuarios/login").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/usuarios/cadastrar").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/usuarios/cadastrar-admin").permitAll()
                 .requestMatchers(HttpMethod.PUT, "/api/usuarios/redefinir-senha").permitAll()
-                
-                // PORTAS TRANCADAS
+
                 .anyRequest().authenticated()
             )
             .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class);
